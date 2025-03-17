@@ -1,0 +1,67 @@
+<div class="container">
+  <h2>Customer Management</h2>
+  <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label>Full Name</label>
+      <input formControlName="fullName" class="form-control" placeholder="Enter full name">
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input formControlName="email" class="form-control" placeholder="Enter email">
+    </div>
+    <div class="form-group">
+      <label>Phone</label>
+      <input formControlName="phone" class="form-control" placeholder="Enter phone">
+    </div>
+    <div class="form-group">
+      <label>Date of Registration</label>
+      <input formControlName="dateOfRegistration" type="date" class="form-control">
+    </div>
+    <div class="form-group">
+      <label>Customer Type</label>
+      <select formControlName="customerType" class="form-control">
+        <option value="regular">Regular</option>
+        <option value="premium">Premium</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Profile Image</label>
+      <input type="file" (change)="onFileChange($event)" class="form-control">
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">
+      {{ isEditing ? 'Update Customer' : 'Add Customer' }}
+    </button>
+  </form>
+
+  <hr>
+
+  <table class="table table-striped mt-3" *ngIf="customers.length">
+    <thead>
+      <tr>
+        <th>Profile Image</th>
+        <th>Full Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Date Registered</th>
+        <th>Type</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let customer of customers; index as i">
+        <td>
+          <img *ngIf="customer.profileImage" [src]="customer.profileImage" alt="Profile Image" width="50">
+        </td>
+        <td>{{ customer.fullName }}</td>
+        <td>{{ customer.email }}</td>
+        <td>{{ customer.phone }}</td>
+        <td>{{ customer.dateOfRegistration | date }}</td>
+        <td>{{ customer.customerType }}</td>
+        <td>
+          <button (click)="onEdit(i)" class="btn btn-warning btn-sm">Update</button>
+          <button (click)="onDelete(i)" class="btn btn-danger btn-sm">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

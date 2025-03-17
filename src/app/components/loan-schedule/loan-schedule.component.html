@@ -1,0 +1,30 @@
+<div class="container">
+  <h2>Loan Repayment Schedule</h2>
+  <div *ngFor="let schedule of loanSchedules">
+    <button class="btn btn-link" (click)="onSelectLoan(schedule)">
+      View Schedule for Loan ID: {{ schedule.loanId }}
+    </button>
+  </div>
+
+  <div *ngIf="selectedLoanSchedule">
+    <h3>Repayment Schedule</h3>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Installment #</th>
+          <th>Due Date</th>
+          <th>Amount</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let installment of selectedLoanSchedule.schedule">
+          <td>{{ installment.installmentNumber }}</td>
+          <td>{{ installment.dueDate | date }}</td>
+          <td>{{ installment.amount | number:'1.2-2' }}</td>
+          <td>{{ installment.status }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

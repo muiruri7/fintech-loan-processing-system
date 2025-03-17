@@ -97,18 +97,24 @@ export class LoanComponent implements OnInit {
 
   // Generate repayment schedule using the annuity formula
   generateRepaymentSchedule(loan: any) {
-    const monthlyRate = loan.interestRate / 1200;
-    const duration = loan.duration;
-    const installment = loan.loanAmount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -duration));
-    let schedule = [];
-    let currentDate = new Date();
-    for (let i = 1; i <= duration; i++) {
-      const dueDate = new Date(currentDate);
-      dueDate.setMonth(dueDate.getMonth() + i);
+    const schedule = [];
+    // Calculate total payable using simple interest:
+    // total = principal + (principal * interestRate / 100)
+    const total = loan.loanAmount + (loan.loanAmount * loan.interestRate / 100);
+    
+    // Calculate equal installment amount, rounded to 2 decimals.
+    const installmentAmount = parseFloat((total / loan.duration).toFixed(2));
+    
+    let dueDate = new Date();
+    for (let i = 1; i <= loan.duration; i++) {
+      // Increment the month for each installment.
+      dueDate.setMonth(dueDate.getMonth() + 1);
       schedule.push({
+        id: new Date().getTime() + i, // Generate a unique ID for each installment.
+        loanId: loan.id,
         installmentNumber: i,
-        dueDate,
-        amount: parseFloat(installment.toFixed(2)),
+        dueDate: dueDate.toISOString().split('T')[0], // Format date as YYYY-MM-DD.
+        amount: installmentAmount,
         status: 'Pending'
       });
     }

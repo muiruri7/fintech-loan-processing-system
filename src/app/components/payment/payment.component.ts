@@ -14,6 +14,7 @@ export class PaymentComponent implements OnInit {
   loans: any[] = [];
   customers: any[] = [];
   payments: any[] = [];
+  availableInstallments: any[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -33,9 +34,14 @@ export class PaymentComponent implements OnInit {
     this.loans = this.storageService.getItem('loans') || [];
     this.customers = this.storageService.getItem('customers') || [];
     this.payments = this.storageService.getItem('payments') || [];
+
+    // When the selected loan changes, update the available installment options.
+    this.paymentForm.get('loanId')?.valueChanges.subscribe(selectedLoanId => {
+      this.updateAvailableInstallments(selectedLoanId);
+    });
   }
 
-  // Helper: get customer info for a loan
+  // Helper: Returns customer details for a given loan ID.
   getCustomerByLoan(loanId: number): any {
     const loan = this.loans.find(l => l.id === loanId);
     if (loan) {
@@ -44,7 +50,20 @@ export class PaymentComponent implements OnInit {
     return null;
   }
 
-  // Process payment: apply amount to installments (partial/full) and navigate afterwards.
+  // Updates the available installments dropdown based on the selected loan.
+  updateAvailableInstallments(selectedLoanId: number): void {
+    const loanSchedules = this.storageService.getItem('loanSchedules') || [];
+    const scheduleRecord = loanSchedules.find((ls: any) => ls.loanId == selectedLoanId);
+    if (scheduleRecord) {
+      // Only include installments that are not fully paid.
+      this.availableInstallments = scheduleRecord.schedule.filter((inst: any) => inst.status !== 'Paid');
+    } else {
+      this.availableInstallments = [];
+    }
+    // Reset the installmentNumber form control when the loan selection changes.
+    this.paymentForm.patchValue({ installmentNumber: '' });
+  }
+
   onSubmit() {
     if (this.paymentForm.invalid) { return; }
     const payment = { ...this.paymentForm.value, id: Date.now() };
@@ -52,49 +71,37 @@ export class PaymentComponent implements OnInit {
     const loanId = payment.loanId;
     const startInstallment = Number(payment.installmentNumber);
 
-    // Retrieve loan schedule record for this loan.
     let loanSchedules = this.storageService.getItem('loanSchedules') || [];
     let scheduleRecord = loanSchedules.find((ls: any) => ls.loanId == loanId);
     if (scheduleRecord) {
-      // Iterate over installments from the specified installment number.
+      // Iterate over installments starting from the selected one.
       for (let installment of scheduleRecord.schedule) {
-        if (installment.installmentNumber < startInstallment) {
-          continue;
-        }
-        if (installment.status === 'Paid') {
-          continue;
-        }
+        if (installment.installmentNumber < startInstallment) { continue; }
+        if (installment.status === 'Paid') { continue; }
         let requiredAmount = installment.amount;
         if (amountToApply >= requiredAmount) {
           installment.status = 'Paid';
           amountToApply -= requiredAmount;
-          // Set the installment amount to the original value (optional)
         } else if (amountToApply > 0) {
-          // Partial payment: reduce required amount by the payment and mark as Partial.
+          // Apply partial payment: reduce the remaining amount.
           installment.amount = parseFloat((requiredAmount - amountToApply).toFixed(2));
           installment.status = 'Partial';
           amountToApply = 0;
           break;
         }
-        if (amountToApply <= 0) {
-          break;
-        }
+        if (amountToApply <= 0) { break; }
       }
       this.storageService.setItem('loanSchedules', loanSchedules);
     }
 
-    // Save the payment record.
     this.payments.push(payment);
     this.storageService.setItem('payments', this.payments);
-
-    // Notify others that a payment was made.
     this.paymentService.paymentMade();
 
-    // Reset the form.
     this.paymentForm.reset();
     this.paymentForm.patchValue({ paymentDate: new Date().toISOString().substring(0, 10) });
 
-    // Navigate to the Loan Coordinator page.
+    // Navigate to the Loan Coordinator page after successful payment.
     this.router.navigate(['/loan-coordinator']);
   }
 }

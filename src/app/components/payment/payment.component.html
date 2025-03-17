@@ -5,6 +5,7 @@
     </div>
     <div class="card-body">
       <form [formGroup]="paymentForm" (ngSubmit)="onSubmit()">
+        <!-- Loan Selection -->
         <div class="mb-3">
           <label class="form-label">Select Loan</label>
           <select formControlName="loanId" class="form-control">
@@ -17,13 +18,22 @@
             Loan selection is required.
           </div>
         </div>
+
+        <!-- Installment Number Dropdown -->
         <div class="mb-3">
           <label class="form-label">Installment Number</label>
-          <input formControlName="installmentNumber" type="number" class="form-control">
+          <select formControlName="installmentNumber" class="form-control">
+            <option value="" disabled>Select Installment</option>
+            <option *ngFor="let installment of availableInstallments" [value]="installment.installmentNumber">
+              {{ installment.installmentNumber }} (Due: {{ installment.dueDate | date }}, Amount: {{ installment.amount | number:'1.2-2' }})
+            </option>
+          </select>
           <div *ngIf="paymentForm.get('installmentNumber')?.invalid && (paymentForm.get('installmentNumber')?.touched || paymentForm.get('installmentNumber')?.dirty)" class="text-danger">
             Installment number is required.
           </div>
         </div>
+
+        <!-- Amount Paid -->
         <div class="mb-3">
           <label class="form-label">Amount Paid</label>
           <input formControlName="amountPaid" type="number" class="form-control">
@@ -31,6 +41,8 @@
             Amount paid is required and must be at least 1.
           </div>
         </div>
+
+        <!-- Payment Date -->
         <div class="mb-3">
           <label class="form-label">Payment Date</label>
           <input formControlName="paymentDate" type="date" class="form-control">
@@ -38,6 +50,7 @@
             Payment date is required.
           </div>
         </div>
+
         <button type="submit" class="btn btn-success mt-3" [disabled]="paymentForm.invalid">Make Payment</button>
       </form>
     </div>

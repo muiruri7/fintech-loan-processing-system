@@ -4,8 +4,10 @@
     <div class="form-group">
       <label>Select Loan</label>
       <select formControlName="loanId" class="form-control">
+        <option value="" disabled>Select Loan</option>
         <option *ngFor="let loan of loans" [value]="loan.id">
-          Loan ID: {{ loan.id }} - {{ loan.loanType }}
+          Loan ID: {{ loan.id }} - 
+          {{ getCustomerByLoan(loan.id)?.fullName || 'Unknown Customer' }}
         </option>
       </select>
     </div>

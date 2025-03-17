@@ -1,30 +1,77 @@
 <div class="container">
   <h2>Loan Management</h2>
   <form [formGroup]="loanForm" (ngSubmit)="onSubmit()">
+    <!-- Customer selection -->
     <div class="form-group">
       <label>Select Customer</label>
       <select formControlName="customerId" class="form-control">
+        <option value="" disabled>Select Customer</option>
         <option *ngFor="let customer of customers" [value]="customer.email">
           {{ customer.fullName }}
         </option>
       </select>
     </div>
+
+    <!-- Loan Type Dropdown -->
     <div class="form-group">
       <label>Loan Type</label>
-      <input formControlName="loanType" class="form-control">
+      <select formControlName="loanType" class="form-control">
+        <option value="" disabled>Select Loan Type</option>
+        <option *ngFor="let type of loanTypes" [value]="type">{{ type }}</option>
+      </select>
     </div>
+
+    <!-- Loan Amount -->
     <div class="form-group">
       <label>Loan Amount</label>
       <input formControlName="loanAmount" type="number" class="form-control">
     </div>
+
+    <!-- Interest Rate -->
     <div class="form-group">
       <label>Interest Rate (%)</label>
       <input formControlName="interestRate" type="number" class="form-control">
     </div>
+
+    <!-- Duration -->
     <div class="form-group">
       <label>Duration (Months)</label>
       <input formControlName="duration" type="number" class="form-control">
     </div>
+
     <button type="submit" class="btn btn-primary mt-3">Apply for Loan</button>
   </form>
+
+  <!-- Table displaying applied loans -->
+  <div class="mt-5">
+    <h3>Applied Loans</h3>
+    <table class="table table-bordered" *ngIf="loans.length > 0">
+      <thead>
+        <tr>
+          <th>Loan ID</th>
+          <th>Customer</th>
+          <th>Profile Image</th>
+          <th>Loan Type</th>
+          <th>Amount</th>
+          <th>Interest Rate (%)</th>
+          <th>Duration (Months)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let loan of loans">
+          <td>{{ loan.id }}</td>
+          <td>{{ getCustomerByEmail(loan.customerId)?.fullName || loan.customerId }}</td>
+          <td>
+            <img *ngIf="getCustomerByEmail(loan.customerId)?.profileImage" 
+                 [src]="getCustomerByEmail(loan.customerId).profileImage" 
+                 alt="Profile Image" width="50">
+          </td>
+          <td>{{ loan.loanType }}</td>
+          <td>{{ loan.loanAmount }}</td>
+          <td>{{ loan.interestRate }}</td>
+          <td>{{ loan.duration }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

@@ -12,6 +12,8 @@ export class LoanComponent implements OnInit {
   customers: any[] = [];
   loans: any[] = [];
   loanSchedules: any[] = [];
+  // Predefined loan types
+  loanTypes: string[] = ['Personal Loan', 'Auto Loan', 'Mortgage Loan', 'Business Loan', 'Education Loan'];
 
   constructor(private fb: FormBuilder, private storageService: LocalStorageService) {
     this.loanForm = this.fb.group({
@@ -29,32 +31,42 @@ export class LoanComponent implements OnInit {
     this.loanSchedules = this.storageService.getItem('loanSchedules') || [];
   }
 
+  // Helper method to get customer details by email (customerId)
+  getCustomerByEmail(email: string) {
+    return this.customers.find(c => c.email === email);
+  }
+
   onSubmit() {
+    if (this.loanForm.invalid) {
+      return;
+    }
+    // Create a new loan with a unique ID (using Date.now() for simplicity)
     const loan = { ...this.loanForm.value, id: Date.now() };
     this.loans.push(loan);
     this.storageService.setItem('loans', this.loans);
 
-    // Auto-generate repayment schedule
+    // Auto-generate the repayment schedule for this loan
     const schedule = this.generateRepaymentSchedule(loan);
     this.loanSchedules.push({ loanId: loan.id, schedule });
     this.storageService.setItem('loanSchedules', this.loanSchedules);
 
+    // Reset the form for further entries
     this.loanForm.reset();
   }
 
   generateRepaymentSchedule(loan: any) {
-    const monthlyRate = loan.interestRate / 1200;
+    const monthlyRate = loan.interestRate / 1200; // Convert annual percentage rate to monthly decimal
     const duration = loan.duration;
     const installment = loan.loanAmount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -duration));
     let schedule = [];
     let currentDate = new Date();
-
     for (let i = 1; i <= duration; i++) {
-      currentDate.setMonth(currentDate.getMonth() + 1);
+      const dueDate = new Date(currentDate);
+      dueDate.setMonth(dueDate.getMonth() + i);
       schedule.push({
         installmentNumber: i,
-        dueDate: new Date(currentDate),
-        amount: installment,
+        dueDate,
+        amount: parseFloat(installment.toFixed(2)), // Round to 2 decimals
         status: 'Pending'
       });
     }

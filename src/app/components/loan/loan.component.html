@@ -39,7 +39,9 @@
       <input formControlName="duration" type="number" class="form-control">
     </div>
 
-    <button type="submit" class="btn btn-primary mt-3">Apply for Loan</button>
+    <button type="submit" class="btn btn-primary mt-3">
+      {{ isEditingLoan ? 'Update Loan' : 'Apply for Loan' }}
+    </button>
   </form>
 
   <!-- Table displaying applied loans -->
@@ -52,9 +54,11 @@
           <th>Customer</th>
           <th>Profile Image</th>
           <th>Loan Type</th>
-          <th>Amount</th>
+          <th>Remaining Amount</th>
           <th>Interest Rate (%)</th>
           <th>Duration (Months)</th>
+          <th>Loan Status</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -67,9 +71,14 @@
                  alt="Profile Image" width="50">
           </td>
           <td>{{ loan.loanType }}</td>
-          <td>{{ loan.loanAmount }}</td>
+          <td>{{ getRemainingAmount(loan) | number:'1.2-2' }}</td>
           <td>{{ loan.interestRate }}</td>
           <td>{{ loan.duration }}</td>
+          <td>{{ getLoanStatus(loan) }}</td>
+          <td>
+            <button class="btn btn-warning btn-sm" (click)="updateLoan(loan)">Update</button>
+            <button class="btn btn-danger btn-sm" (click)="deleteLoan(loan)">Delete</button>
+          </td>
         </tr>
       </tbody>
     </table>

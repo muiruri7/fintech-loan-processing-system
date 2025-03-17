@@ -1,101 +1,102 @@
-<div class="container">
-  <h2>Loan Management</h2>
-  <form [formGroup]="loanForm" (ngSubmit)="onSubmit()">
-    <!-- Customer selection -->
-    <div class="form-group">
-      <label>Select Customer</label>
-      <select formControlName="customerId" class="form-control">
-        <option value="" disabled>Select Customer</option>
-        <option *ngFor="let customer of customers" [value]="customer.email">
-          {{ customer.fullName }}
-        </option>
-      </select>
-      <div *ngIf="loanForm.get('customerId')?.invalid && (loanForm.get('customerId')?.touched || loanForm.get('customerId')?.dirty)" class="text-danger">
-        Customer selection is required.
-      </div>
+<div class="container my-4">
+  <!-- Loan Form Card -->
+  <div class="card shadow mb-4">
+    <div class="card-header bg-primary text-white">
+      <h3>Loan Management</h3>
     </div>
-
-    <!-- Loan Type Dropdown -->
-    <div class="form-group">
-      <label>Loan Type</label>
-      <select formControlName="loanType" class="form-control">
-        <option value="" disabled>Select Loan Type</option>
-        <option *ngFor="let type of loanTypes" [value]="type">{{ type }}</option>
-      </select>
-      <div *ngIf="loanForm.get('loanType')?.invalid && (loanForm.get('loanType')?.touched || loanForm.get('loanType')?.dirty)" class="text-danger">
-        Loan Type is required.
-      </div>
+    <div class="card-body">
+      <form [formGroup]="loanForm" (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+          <label class="form-label">Select Customer</label>
+          <select formControlName="customerId" class="form-control">
+            <option value="" disabled>Select Customer</option>
+            <option *ngFor="let customer of customers" [value]="customer.email">
+              {{ customer.fullName }}
+            </option>
+          </select>
+          <div *ngIf="loanForm.get('customerId')?.invalid && (loanForm.get('customerId')?.touched || loanForm.get('customerId')?.dirty)" class="text-danger">
+            Customer selection is required.
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Loan Type</label>
+          <select formControlName="loanType" class="form-control">
+            <option value="" disabled>Select Loan Type</option>
+            <option *ngFor="let type of loanTypes" [value]="type">{{ type }}</option>
+          </select>
+          <div *ngIf="loanForm.get('loanType')?.invalid && (loanForm.get('loanType')?.touched || loanForm.get('loanType')?.dirty)" class="text-danger">
+            Loan Type is required.
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Loan Amount</label>
+          <input formControlName="loanAmount" type="number" class="form-control">
+          <div *ngIf="loanForm.get('loanAmount')?.invalid && (loanForm.get('loanAmount')?.touched || loanForm.get('loanAmount')?.dirty)" class="text-danger">
+            Loan Amount is required and must be at least 1.
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Interest Rate (%)</label>
+          <input formControlName="interestRate" type="number" class="form-control">
+          <div *ngIf="loanForm.get('interestRate')?.invalid && (loanForm.get('interestRate')?.touched || loanForm.get('interestRate')?.dirty)" class="text-danger">
+            Interest Rate is required and cannot be negative.
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Duration (Months)</label>
+          <input formControlName="duration" type="number" class="form-control">
+          <div *ngIf="loanForm.get('duration')?.invalid && (loanForm.get('duration')?.touched || loanForm.get('duration')?.dirty)" class="text-danger">
+            Duration is required and must be at least 1 month.
+          </div>
+        </div>
+        <button type="submit" class="btn btn-success" [disabled]="loanForm.invalid">
+          {{ isEditingLoan ? 'Update Loan' : 'Apply for Loan' }}
+        </button>
+      </form>
     </div>
-
-    <!-- Loan Amount -->
-    <div class="form-group">
-      <label>Loan Amount</label>
-      <input formControlName="loanAmount" type="number" class="form-control">
-      <div *ngIf="loanForm.get('loanAmount')?.invalid && (loanForm.get('loanAmount')?.touched || loanForm.get('loanAmount')?.dirty)" class="text-danger">
-        Loan Amount is required and must be at least 1.
-      </div>
+  </div>
+  
+  <!-- Applied Loans Table Card -->
+  <div class="card shadow">
+    <div class="card-header bg-secondary text-white">
+      <h4>Applied Loans</h4>
     </div>
-
-    <!-- Interest Rate -->
-    <div class="form-group">
-      <label>Interest Rate (%)</label>
-      <input formControlName="interestRate" type="number" class="form-control">
-      <div *ngIf="loanForm.get('interestRate')?.invalid && (loanForm.get('interestRate')?.touched || loanForm.get('interestRate')?.dirty)" class="text-danger">
-        Interest Rate is required and cannot be negative.
-      </div>
+    <div class="card-body">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Loan ID</th>
+            <th>Customer</th>
+            <th>Profile Image</th>
+            <th>Loan Type</th>
+            <th>Remaining Amount</th>
+            <th>Interest Rate (%)</th>
+            <th>Duration (Months)</th>
+            <th>Loan Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let loan of loans">
+            <td>{{ loan.id }}</td>
+            <td>{{ getCustomerByEmail(loan.customerId)?.fullName || loan.customerId }}</td>
+            <td>
+              <img *ngIf="getCustomerByEmail(loan.customerId)?.profileImage" 
+                   [src]="getCustomerByEmail(loan.customerId).profileImage" 
+                   alt="Profile Image" width="50">
+            </td>
+            <td>{{ loan.loanType }}</td>
+            <td>{{ getRemainingAmount(loan) | number:'1.2-2' }}</td>
+            <td>{{ loan.interestRate }}</td>
+            <td>{{ loan.duration }}</td>
+            <td>{{ getLoanStatus(loan) }}</td>
+            <td>
+              <button class="btn btn-warning btn-sm" (click)="updateLoan(loan)">Update</button>
+              <button class="btn btn-danger btn-sm" (click)="deleteLoan(loan)">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-
-    <!-- Duration -->
-    <div class="form-group">
-      <label>Duration (Months)</label>
-      <input formControlName="duration" type="number" class="form-control">
-      <div *ngIf="loanForm.get('duration')?.invalid && (loanForm.get('duration')?.touched || loanForm.get('duration')?.dirty)" class="text-danger">
-        Duration is required and must be at least 1 month.
-      </div>
-    </div>
-
-    <button type="submit" class="btn btn-primary mt-3" [disabled]="loanForm.invalid">
-      {{ isEditingLoan ? 'Update Loan' : 'Apply for Loan' }}
-    </button>
-  </form>
-
-  <!-- Applied Loans Table -->
-  <div class="mt-5">
-    <h3>Applied Loans</h3>
-    <table class="table table-bordered" *ngIf="loans.length > 0">
-      <thead>
-        <tr>
-          <th>Loan ID</th>
-          <th>Customer</th>
-          <th>Profile Image</th>
-          <th>Loan Type</th>
-          <th>Remaining Amount</th>
-          <th>Interest Rate (%)</th>
-          <th>Duration (Months)</th>
-          <th>Loan Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let loan of loans">
-          <td>{{ loan.id }}</td>
-          <td>{{ getCustomerByEmail(loan.customerId)?.fullName || loan.customerId }}</td>
-          <td>
-            <img *ngIf="getCustomerByEmail(loan.customerId)?.profileImage" 
-                 [src]="getCustomerByEmail(loan.customerId).profileImage" 
-                 alt="Profile Image" width="50">
-          </td>
-          <td>{{ loan.loanType }}</td>
-          <td>{{ getRemainingAmount(loan) | number:'1.2-2' }}</td>
-          <td>{{ loan.interestRate }}</td>
-          <td>{{ loan.duration }}</td>
-          <td>{{ getLoanStatus(loan) }}</td>
-          <td>
-            <button class="btn btn-warning btn-sm" (click)="updateLoan(loan)">Update</button>
-            <button class="btn btn-danger btn-sm" (click)="deleteLoan(loan)">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
   </div>
 </div>

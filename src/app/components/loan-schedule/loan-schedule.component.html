@@ -1,57 +1,67 @@
-<div class="container">
-  <h2>Loan Repayment Schedules</h2>
-  <!-- Table of loans with "View Schedule" button -->
-  <table class="table table-bordered" *ngIf="loans.length > 0">
-    <thead>
-      <tr>
-        <th>Loan ID</th>
-        <th>Customer</th>
-        <th>Profile Image</th>
-        <th>Loan Type</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let loan of loans">
-        <td>{{ loan.id }}</td>
-        <td>{{ getCustomerByLoan(loan)?.fullName || loan.customerId }}</td>
-        <td>
-          <img *ngIf="getCustomerByLoan(loan)?.profileImage" 
-               [src]="getCustomerByLoan(loan).profileImage" 
-               alt="Profile Image" width="50">
-        </td>
-        <td>{{ loan.loanType }}</td>
-        <td>
-          <button class="btn btn-primary btn-sm" (click)="viewSchedule(loan)">View Schedule</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
-  <!-- Display selected loan schedule -->
-  <div *ngIf="selectedLoanSchedule">
-    <h3>Repayment Schedule for Loan ID: {{ selectedLoan?.id || 'N/A' }}</h3>
-    <div class="mb-3">
-      <img *ngIf="selectedCustomer?.profileImage" [src]="selectedCustomer.profileImage" alt="Profile Image" width="50">
-      <span class="ml-2">{{ selectedCustomer?.fullName }}</span>
+<div class="container my-4">
+  <!-- Loans Table Card -->
+  <div class="card shadow mb-4">
+    <div class="card-header bg-primary text-white">
+      <h2>Loan Repayment Schedules</h2>
     </div>
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Installment #</th>
-          <th>Due Date</th>
-          <th>Amount</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let installment of selectedLoanSchedule">
-          <td>{{ installment.installmentNumber }}</td>
-          <td>{{ installment.dueDate | date }}</td>
-          <td>{{ installment.amount | number:'1.2-2' }}</td>
-          <td>{{ installment.status }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="card-body">
+      <table class="table table-hover" *ngIf="loans.length > 0">
+        <thead>
+          <tr>
+            <th>Loan ID</th>
+            <th>Customer</th>
+            <th>Profile Image</th>
+            <th>Loan Type</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let loan of loans">
+            <td>{{ loan.id }}</td>
+            <td>{{ getCustomerByLoan(loan)?.fullName || loan.customerId }}</td>
+            <td>
+              <img *ngIf="getCustomerByLoan(loan)?.profileImage" 
+                   [src]="getCustomerByLoan(loan).profileImage" 
+                   alt="Profile Image" width="50">
+            </td>
+            <td>{{ loan.loanType }}</td>
+            <td>
+              <button class="btn btn-primary btn-sm" (click)="viewSchedule(loan)">View Schedule</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Selected Loan Schedule Card -->
+  <div class="card shadow" *ngIf="selectedLoanSchedule">
+    <div class="card-header bg-secondary text-white">
+      <h3>Repayment Schedule for Loan ID: {{ selectedLoan?.id || 'N/A' }}</h3>
+    </div>
+    <div class="card-body">
+      <div class="mb-3 d-flex align-items-center">
+        <img *ngIf="selectedCustomer?.profileImage" [src]="selectedCustomer.profileImage" alt="Profile Image" width="50">
+        <span class="ms-3">{{ selectedCustomer?.fullName }}</span>
+      </div>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Installment #</th>
+            <th>Due Date</th>
+            <th>Amount</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let installment of selectedLoanSchedule">
+            <td>{{ installment.installmentNumber }}</td>
+            <td>{{ installment.dueDate | date }}</td>
+            <td>{{ installment.amount | number:'1.2-2' }}</td>
+            <td>{{ installment.status }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

@@ -13,8 +13,6 @@ export class LoanComponent implements OnInit {
   loans: any[] = [];
   loanSchedules: any[] = [];
   loanTypes: string[] = ['Personal Loan', 'Auto Loan', 'Mortgage Loan', 'Business Loan', 'Education Loan'];
-  
-  // Flags for editing an existing loan
   isEditingLoan: boolean = false;
   editingLoanId: number | null = null;
 

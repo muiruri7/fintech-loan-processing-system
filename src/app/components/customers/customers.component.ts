@@ -21,7 +21,8 @@ export class CustomersComponent implements OnInit {
     this.customerForm = this.fb.group({
       fullName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      phone: ['', Validators.required],
+      // Phone must be 10-15 digits
+      phone: ['', [Validators.required, Validators.pattern("^[0-9]{10,15}$")]],
       dateOfRegistration: [new Date().toISOString().substring(0, 10), Validators.required],
       customerType: ['', Validators.required],
       profileImage: [null]

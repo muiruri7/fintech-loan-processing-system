@@ -10,6 +10,9 @@
           {{ customer.fullName }}
         </option>
       </select>
+      <div *ngIf="loanForm.get('customerId')?.invalid && (loanForm.get('customerId')?.touched || loanForm.get('customerId')?.dirty)" class="text-danger">
+        Customer selection is required.
+      </div>
     </div>
 
     <!-- Loan Type Dropdown -->
@@ -19,32 +22,44 @@
         <option value="" disabled>Select Loan Type</option>
         <option *ngFor="let type of loanTypes" [value]="type">{{ type }}</option>
       </select>
+      <div *ngIf="loanForm.get('loanType')?.invalid && (loanForm.get('loanType')?.touched || loanForm.get('loanType')?.dirty)" class="text-danger">
+        Loan Type is required.
+      </div>
     </div>
 
     <!-- Loan Amount -->
     <div class="form-group">
       <label>Loan Amount</label>
       <input formControlName="loanAmount" type="number" class="form-control">
+      <div *ngIf="loanForm.get('loanAmount')?.invalid && (loanForm.get('loanAmount')?.touched || loanForm.get('loanAmount')?.dirty)" class="text-danger">
+        Loan Amount is required and must be at least 1.
+      </div>
     </div>
 
     <!-- Interest Rate -->
     <div class="form-group">
       <label>Interest Rate (%)</label>
       <input formControlName="interestRate" type="number" class="form-control">
+      <div *ngIf="loanForm.get('interestRate')?.invalid && (loanForm.get('interestRate')?.touched || loanForm.get('interestRate')?.dirty)" class="text-danger">
+        Interest Rate is required and cannot be negative.
+      </div>
     </div>
 
     <!-- Duration -->
     <div class="form-group">
       <label>Duration (Months)</label>
       <input formControlName="duration" type="number" class="form-control">
+      <div *ngIf="loanForm.get('duration')?.invalid && (loanForm.get('duration')?.touched || loanForm.get('duration')?.dirty)" class="text-danger">
+        Duration is required and must be at least 1 month.
+      </div>
     </div>
 
-    <button type="submit" class="btn btn-primary mt-3">
+    <button type="submit" class="btn btn-primary mt-3" [disabled]="loanForm.invalid">
       {{ isEditingLoan ? 'Update Loan' : 'Apply for Loan' }}
     </button>
   </form>
 
-  <!-- Table displaying applied loans -->
+  <!-- Applied Loans Table -->
   <div class="mt-5">
     <h3>Applied Loans</h3>
     <table class="table table-bordered" *ngIf="loans.length > 0">
